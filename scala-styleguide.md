@@ -8,37 +8,36 @@ Code is written once by its author, but read and modified multiple times by lots
 
 * Use 2 space indentation in general.
 * For declarations (methods and classes), use 4 space indentation of parameters when they don't fit on a single line. Return types should then be on the same line as the closing `)`.
-  
+
   ```scala
   def fooBar(  				// new line after `(`
-      firstName: String,  // 4 space indentation
+      firstName: String,      // 4 space indentation
       middleName: String,
       lastName: String		// new line before closing `)`
   ): User = { 				// return type after closing `)`
-    // method body   		// 2 space indentation
+    // method body   		    // 2 space indentation
   }
-  
+
   class Address(				// new line after `(`
-      val street: String,  // 4 space indentation
+      val street: String,     // 4 space indentation
       val number: Int,
       val zip: ZipCode,
       val area: String
   ) {  						// new line before closing `)`
-    // class body			// 2 space indentation
+    // class body			    // 2 space indentation
   }
   ```
-  
+
 * Classes whose header doesn't fit in a single line, put the extend on the same line as the closing `)`. If the class has a long list of mixed in traits, add each one to a new line. And add a blank line between the class header and the first line of the body.
 
   ```scala
-  
+
   class Foo(val p1: String, val p2: String) extends FooTrait
     with BarOps
     with Logging { // 2 space indentation
     
     def firstMethod(): Unit = { ... } // blank line above
   }
-  
   ```
 
 * Do **NOT** use vertical alignment. They draw attention to the wrong parts of the code and make the aligned code harder to change in the future.
@@ -54,14 +53,14 @@ Code is written once by its author, but read and modified multiple times by lots
   val minus = "-"
   val multiply = "*"
   ```
-  
-### Blank lines (Vertival whitespace)
+
+### Blank lines (Vertical whitespace)
 
 * A single blank line appears:
-	* Between consecutive members (or initializers) of a class: fields, constructors, methods, nested classes, static initializers, instance initializers.
-		* Exception: A blank line between two consecutive fields (having no other code between them) is optional. Such blank lines are used as needed to create logical groupings of fields.
-	* Within method bodies, as needed to create logical groupings of statements.
-	* Optionally before the first member or after the last member of the class (neither encouraged nor discouraged).
+  * Between consecutive members (or initializers) of a class: fields, constructors, methods, nested classes, static initializers, instance initializers.
+    * Exception: A blank line between two consecutive fields (having no other code between them) is optional. Such blank lines are used as needed to create logical groupings of fields.
+  * Within method bodies, as needed to create logical groupings of statements.
+  * Optionally before the first member or after the last member of the class (neither encouraged nor discouraged).
 * Use one or two blank line(s) to separate class definitions.
 * Excessive number of blank lines is discouraged.
 
@@ -78,7 +77,7 @@ Code is written once by its author, but read and modified multiple times by lots
     def killJob(): Unit
   }
   ```
-  
+
 * Callsite should follow method declaration, i.e. if a method is declared with parentheses, call with parentheses. Note that this is not just syntactic. It can affect correctness when apply is defined in the return object.
 
   ```scala
@@ -90,9 +89,9 @@ Code is written once by its author, but read and modified multiple times by lots
     def foo: Foo
   }
 
-  new Bar().foo  // This returns a Foo
+  new Bar().foo    // This returns a Foo
   new Bar().foo()  // This returns an Int!
-  ```  
+  ```
 
 ### Curly brackets
 
@@ -147,7 +146,7 @@ val longValue = 5432l  // Do NOT do this
 Use Java docs style instead of Scala docs style.
 
 ```scala
-// Correct:
+Correct:
 /**
  * This is correct JavaDoc comment. And
  * this is my second line, and if I keep typing, this would be
@@ -177,7 +176,7 @@ Use Java docs style instead of Scala docs style.
     case ...
   }
   ```
-  
+
 * When calling a function with a closure (or partial function), if there are multiple cases, indent and wrap them.
 
   ```scala
@@ -186,7 +185,7 @@ Use Java docs style instead of Scala docs style.
     case b: Bar =>  ...
   }
   ```
-  
+
 * Unless _all_ cases fit within the max line length, each case body should be on a new line. Each case should then be separated with a blank line.
 
   ```scala
@@ -206,12 +205,12 @@ Use Java docs style instead of Scala docs style.
 We try to follow the standard Scala/Java naming conventions.
 
 * Classes, traits, objects and enums should follow the Java class naming convention.
-  
+
   ```scala
   class FooBar
-  
+
   trait Money
-  
+
   object MyObject
   ```
 
@@ -231,21 +230,21 @@ We try to follow the standard Scala/Java naming conventions.
   val timeout = 10 seconds
   val currUsr = "Darth Vader"
   ```
-  
+
 * In local scopes it is OK to use short (and 1 character) long names.
 
   ```scala
   maybeString.foreach(s => println(s))
-  
+
   maybeInt.map(n => n * 2)
   ```
-  
+
 * It is OK to use unamed arguments in local scopes.
 
   ```scala
   maybeInt.map(_ * 2)
   ```
-  
+
 ### Line length
 
 * Try to keep lines below 80 characters in length.
@@ -256,5 +255,142 @@ We try to follow the standard Scala/Java naming conventions.
 * Methods should not be longer than 50 lines of code.
 * A class should contain no more than 30 methods/functions.
 
+### Anonymous methods
 
-    
+Avoid excessive parentheses and curly braces for anonymous methods.
+
+```scala
+// Correct
+list.map { item =>
+  ...
+}
+
+// Correct
+list.map(item => ...)
+
+// Wrong
+list.map(item => {
+  ...
+})
+
+// Wrong
+list.map { item => {
+  ...
+}}
+
+// Wrong
+list.map({ item => ... })
+```
+
+## Scala langugage features
+
+### The apply method
+
+Avoid defining apply methods on classes. These methods tend to make the code less readable, especially for people less familiar with Scala. It is also harder for IDEs (or grep) to trace. In the worst case, it can also affect correctness of the code in surprising ways, as demonstrated in Parentheses.
+
+It is acceptable to define apply methods on companion objects as factory methods. In these cases, the apply method should return the companion class type.
+
+```scala
+object TreeNode {
+  // This is OK
+  def apply(name: String): TreeNode = ...
+
+  // This is bad because it does not return a TreeNode
+  def apply(name: String): String = ...
+}
+```
+
+### The override modifier
+
+Always add the `override` modifier for methods, both for overriding concrete methods and implementing abstract methods. The Scala compiler does not require override for implementing abstract methods. However, we should always add `override` to make it obvious, and to avoid accidental non-overrides due to non-matching signatures.
+
+```scala
+trait Parent {
+  def hello(data: Map[String, String]): Unit = {
+    print(data)
+  }
+}
+
+class Child extends Parent {
+  import scala.collection.Map
+
+  // The following method does NOT override Parent.hello,
+  // because the two Maps have different types.
+  // If we added "override" modifier, the compiler would've caught it.
+  def hello(data: Map[String, String]): Unit = {
+    print("This is supposed to override the parent method, but it is actually not!")
+  }
+}
+```
+
+### Symbolic methods (operator overloading)
+
+Do NOT use symbolic method names, unless you are defining them for natural arithmetic operations (e.g. +, -, *, /). Under no other circumstances should they be used. Symbolic method names make it very hard to understand the intent of the methods. Consider the following two examples:
+
+```scala
+// symbolic method names are hard to understand
+channel ! msg
+stream1 >>= stream2
+
+// self-evident what is going on
+channel.send(msg)
+stream1.join(stream2)
+```
+
+### Type inference
+
+Scala type inference, especially left-side type inference and closure inference, can make code more concise. That said, there are a few cases where explicit typing should be used:
+
+* **Public methods should be explicitly typed**, otherwise the compiler's inferred type can often surprise you.
+* **Implicit methods should be explicitly typed**, otherwise it can crash the Scala compiler with incremental compilation.
+* **Variables or closures with non-obvious types should be explicitly typed**. A good litmus test is that explicit types should be used if a code reviewer cannot determine the type in 3 seconds.
+
+### Recursion and tail recursion
+
+Avoid using recursion, unless the problem can be naturally framed recursively (e.g. graph traversal, tree traversal).
+
+or methods that are meant to be tail recursive, apply the `@tailrec` annotation to make sure the compiler can check it is tail recursive. You will be surprised how often seemingly tail recursive code is actually not tail recursive due to the use of closures and functional transformations.
+
+Most code is easier to reason about with a simple loop and explicit state machines. Expressing it with tail recursions (and accumulators) can make it more verbose and harder to understand. For example, the following imperative code is more readable than the tail recursive version:
+
+```scala
+// Tail recursive version.
+def max(data: Array[Int]): Int = {
+  @tailrec
+  def max0(data: Array[Int], pos: Int, max: Int): Int = {
+    if (pos == data.length) {
+      max
+    } else {
+      max0(data, pos + 1, if (data(pos) > max) data(pos) else max)
+    }
+  }
+  max0(data, 0, Int.MinValue)
+}
+
+// Explicit loop version
+def max(data: Array[Int]): Int = {
+  var max = Int.MinValue
+  for (v <- data) {
+    if (v > max) {
+      max = v
+    }
+  }
+  max
+}
+```
+
+### Implicits
+
+**Be very careful if you need to use implicits**. They have their use, but should be used sparingly.
+
+Here are some scenarios where they are OK to use.
+
+* When defining JSON formatters for the Play! Framework.
+* Converters between domain types when this increases readability.
+* ​
+
+
+### Exception handling
+
+* Do **NOT** catch `Throwable` or `Exception`. Use `scala.util.control.NonFatal`. This ensures that we do not catch `NonLocalReturnControl`.
+* Do **NOT** use `Try` in API's. Instead, prefer the result type `MusitResult`. This allows for dealing with failure situations in a better way.
