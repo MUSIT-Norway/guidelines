@@ -389,8 +389,44 @@ Here are some scenarios where they are OK to use.
 * Converters between domain types when this increases readability.
 * ​
 
-
 ### Exception handling
 
+In the MUSIT-Norway codebase an Exception is considered something that is exceptional for normal execution flow. And things like not being authenticated, authorised, trying to look up something that doesn't exist, etc. aren't _exceptional_ in any way. These things are in fact very common and should be handled in code using a type that can encode the failure scenario. Like `MusitResult`, `Option`, or  `Either`.
+
+If you _do_ need to handle exceptions explicitly, there are a couple of general rules to abide by:
+
 * Do **NOT** catch `Throwable` or `Exception`. Use `scala.util.control.NonFatal`. This ensures that we do not catch `NonLocalReturnControl`.
-* Do **NOT** use `Try` in API's. Instead, prefer the result type `MusitResult`. This allows for dealing with failure situations in a better way.
+* **AVOID** using `Try` as the return type. Instead, prefer the result type `MusitResult`. This allows for dealing with failure situations in a better way.
+* **AVOID** throwing exceptions. There are some cases where it is the correct thing to do. But these are typically outside of the normal execution flow of the application.
+
+
+### Options
+
+* Use `Option` when the value can vbe empty. **NEVER** use `null`.
+
+* When constructing an `Option`, use `Option` rather than `Some` to guard against `null` values. If you are explicitly defining the value to return, it is OK to use `Some` since the value will clearly not be `null`.
+
+  ```scala
+  // Correct
+  def foo(arg: String): Option[String] = Option(transform(arg))
+    
+  // Correct
+  def maybeFoo: Option[String] = Some("Hello, world!")
+    
+
+  // Wrong
+  // arg can be null and may cause a null pointer exception.
+  def foo(arg: String): Option[String] = Some(transform(arg)) 
+    
+    
+  ```
+
+* Do not use `None` to represent exceptions. Instead use `MusitResult`.
+
+* Do not call `get` directly on an `Option`, unless you are 100% sure the `Option` has some value.
+
+
+### Private fields
+
+In Scala `private` fields are still accessible by other instances of the same class. So protecting it with `synchronized` is not enough. If you want the variable to only be accessible for the current instance, use `private[this]`.
+
