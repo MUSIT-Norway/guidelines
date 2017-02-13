@@ -15,7 +15,8 @@ Inspiration and content has been drawn from several good sources around the inte
   * Creating a new library
 
 * JavaScript
-
+  * [Coding practices](js-coding-practices.md)
+  * [Style guide](js-styleguide.md)
 
 
 # Contact
